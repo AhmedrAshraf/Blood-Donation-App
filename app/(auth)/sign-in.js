@@ -4,6 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, ImageBackground, StyleSheet } 
 import { auth, db } from "../../utils/firebase";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignIn() {
     const [email, setEmail] =useState("");

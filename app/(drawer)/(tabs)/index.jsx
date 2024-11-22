@@ -2,15 +2,27 @@ import { db } from '~/utils/firebase';
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
-
+import { useAuth } from '~/hooks/useAuth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function BloodDonorListScreen() {
 
     const [donors, setDonors] = useState([])
+    const [requests, setRequests] = useState([])
 
     useEffect(() => {
         getDonors()
+        getRequests()
     }, [])
 
+    const handleUser = async() => {
+        const user = await AsyncStorage.getItem('info')
+        console.log("🚀 ~ useEffect ~ user:", user)
+    }
+
+    useEffect(()=>{
+        handleUser()
+    },[])  
+    
     const getDonors = () => {
         getDocs(collection(db, "donors"))
             .then((querySnapshot) => {
@@ -19,6 +31,20 @@ export default function BloodDonorListScreen() {
                     donors.push(doc.data());
                 });
                 setDonors(donors);
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+            })
+    }
+
+    const getRequests = () => {
+        getDocs(collection(db, "requests"))
+            .then((querySnapshot) => {
+                const requests = [];
+                querySnapshot.forEach((doc) => {
+                    requests.push(doc.data());
+                });
+                setRequests(requests);
             })
             .catch((error) => {
                 console.log("Error getting documents: ", error);
@@ -37,12 +63,33 @@ export default function BloodDonorListScreen() {
         </View>
     );
 
+    const renderRequestsCard = ({ item }) => (
+        <TouchableOpacity style={styles.card}>
+            <Text style={styles.name}>Patient Name: {item.patientName}</Text>
+            <Text style={styles.bloodGroup}>Blood Group: {item.bloodGroup}</Text>
+            <Text style={styles.age}>Age: {item.age}</Text>
+            <Text style={styles.lastDonation}>Hospital Name: {item.hospitalName}</Text>
+            <TouchableOpacity style={styles.contactButton}>
+                <Text style={styles.contactButtonText}>Donate</Text>
+            </TouchableOpacity>
+        </TouchableOpacity>
+    );
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>Blood Donors</Text>
             <FlatList
                 data={donors}
                 renderItem={renderDonorCard}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.listContent}
+            />
+
+            {/* Blood Requests */}
+            <Text style={styles.header}>Blood Requests</Text>
+            <FlatList
+                data={requests}
+                renderItem={renderRequestsCard}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContent}
             />
@@ -83,7 +130,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 20,
         color: 'black',
-        marginBottom: 5,
+        // marginBottom: 5,
         fontWeight: 'bold',
     },
     bloodGroup: {

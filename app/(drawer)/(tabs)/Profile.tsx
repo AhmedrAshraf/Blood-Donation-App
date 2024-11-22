@@ -1,111 +1,68 @@
 import { router } from 'expo-router';
-import { addDoc, collection } from 'firebase/firestore';
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import { doc, onSnapshot } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { db } from '~/utils/firebase';
 
 export default function BloodDonateScreen() {
-  // State variables to store input data
-  const [name, setName] = useState('');
-  const [bloodGroup, setBloodGroup] = useState('');
-  const [age, setAge] = useState('');
-  const [lastDonation, setLastDonation] = useState('');
+  const [Timer, setTimer] = useState(10);
+  const [count, setCount] = useState(25);
+  const [online, setOnline] = useState(false);
 
-  // Handle form submission
-  const handleDonateNow = () => {
-    if (name && bloodGroup && age && lastDonation) {
-      addDoc(collection(db, 'donors'), {
-        name,
-        bloodGroup,
-        age,
-        lastDonation,
-        timestamp: new Date(),
-      })
-      router.push('/(tabs)')
-      Alert.alert('Thank You!', `Thank you, ${name}, for your interest in donating blood!`);
-      // Here, you could add logic to save or send the data to a backend or Firebase.
-    } else {
-      Alert.alert('Incomplete Information', 'Please fill out all fields before submitting.');
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'adminOnline', 'PJeGZBPZVCoqcBJslSBL'), (doc) => {
+      setOnline(doc.data()?.isOnline);
+    });
+    return () => unsub();
+  }, []);
+
+  const handleTap = () => {
+    if (count > 0) {
+      setCount((prevCount) => prevCount - 1);
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      // setTimer((prevCount) => prevCount - 1);
+    }, 1000);
+  }, [Timer]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Donate Blood</Text>
-        <Text style={styles.subHeaderText}>Save a Life Today</Text>
+        <Text style={styles.headerText}>Game</Text>
+        <Text style={{ fontSize: 30, color: 'white' }}>{Timer}</Text>
       </View>
 
-      {/* Donation Info Section */}
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Your Information</Text>
-
-        {/* Name Input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Name:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your name"
-            placeholderTextColor="#B0BEC5"
-            value={name}
-            onChangeText={setName}
-          />
-        </View>
-
-        {/* Blood Group Input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Blood Group:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your blood group (e.g., O+)"
-            placeholderTextColor="#B0BEC5"
-            value={bloodGroup}
-            onChangeText={setBloodGroup}
-          />
-        </View>
-
-        {/* Age Input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Age:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your age"
-            placeholderTextColor="#B0BEC5"
-            keyboardType="numeric"
-            value={age}
-            onChangeText={setAge}
-          />
-        </View>
-
-        {/* Last Donation Date Input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Last Donation Date:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 3 months ago"
-            placeholderTextColor="#B0BEC5"
-            value={lastDonation}
-            onChangeText={setLastDonation}
-          />
-        </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Text style={{ fontSize: 50, fontWeight: '600', marginTop: 50 }}>IsAdmin</Text>
+        <View
+          style={{
+            width: 20,
+            height: 20,
+            borderRadius: 100,
+            backgroundColor: online ? 'green' : 'gray',
+          }}></View>
       </View>
 
-      {/* Call to Action Button */}
-      <TouchableOpacity style={styles.donateButton} onPress={handleDonateNow}>
-        <Text style={styles.buttonText}>Donate Now</Text>
-      </TouchableOpacity>
+      <Text style={{ fontSize: 50, fontWeight: '600', marginTop: 50 }}>{count}</Text>
 
-      {/* Image or Icon Section */}
-      <Image
-        source={{ uri: 'https://example.com/blood_donate_image.png' }}
-        style={styles.image}
-      />
-
-      {/* Information Section */}
-      <Text style={styles.infoText}>
-        By donating blood, you can help save up to three lives. Please ensure you are in good health and meet the donation eligibility criteria.
-      </Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          width: '100%',
+          marginTop: 50,
+        }}>
+        <TouchableOpacity style={styles.donateButton} onPress={handleTap}>
+          <Text style={styles.buttonText}>Tap</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.donateButton} onPress={handleTap}>
+          <Text style={styles.buttonText}>tap</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -114,16 +71,16 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: '#FFF5F5',
-    padding: 16,
     alignItems: 'center',
   },
   header: {
     alignItems: 'center',
     backgroundColor: '#D32F2F',
-    padding: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
     borderRadius: 10,
-    width: '100%',
     marginBottom: 20,
+    width: '100%',
   },
   headerText: {
     color: '#FFFFFF',

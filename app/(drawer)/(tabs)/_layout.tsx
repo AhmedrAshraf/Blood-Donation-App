@@ -54,9 +54,9 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="Chatbot"
+        name="Requests"
         options={{
-          title: 'Chatbot',
+          title: 'Requests',
           tabBarIcon: ({ color }) => <TabBarIcon name="inbox" color={color} />,
         }}
       />
