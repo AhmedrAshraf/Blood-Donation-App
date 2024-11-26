@@ -22,6 +22,7 @@ export default function TabLayout() {
           shadowRadius: 10,
           elevation: 10,
         },
+        
       }}>
       {/* Left Tab for Donate */}
       <Tabs.Screen
