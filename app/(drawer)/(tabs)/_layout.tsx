@@ -22,6 +22,7 @@ export default function TabLayout() {
           shadowRadius: 10,
           elevation: 10,
         },
+        
       }}>
       {/* Left Tab for Donate */}
       <Tabs.Screen
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#FF5252', // Main color for the floating button
+    backgroundColor: '#ed631a', // Main color for the floating button
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 40, // Lift the button slightly above the tab bar
